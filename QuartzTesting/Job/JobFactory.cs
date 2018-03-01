@@ -25,17 +25,17 @@ namespace QuartzTesting.Job
 
         public override IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
         {
-            var id = bundle.JobDetail.JobDataMap.GetString("id");
             var strategy = bundle.JobDetail.JobDataMap.GetString("strategy");
             var provider = bundle.JobDetail.JobDataMap.GetString("connector");
-            using (var scope = _container.BeginLifetimeScope(x=> x.Reg))
+            var rnd = new Random();
+
+            using (var scope = _container.BeginLifetimeScope(x => x.Register(l => new ConsoleLogger(bundle.JobDetail.Key.Name)).As<ILogger>()))
             {
-                _log.Log("");
                 try
                 {
-                    var ds = _container.ResolveNamed<IDataSource>(provider);
-                    var handler = _container.ResolveNamed<IHandler>(strategy);
-                    var job = (IJob)_container.Re.Resolve(bundle.JobDetail.JobType);
+                    var ds = scope.ResolveNamed<IDataSource>(provider);
+                    var handler = scope.ResolveNamed<IHandler>(strategy);
+                    var job = new SyncJob(handler, ds);
                     return job;
                 }
                 catch (Exception e)

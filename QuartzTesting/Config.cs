@@ -10,8 +10,8 @@ namespace QuartzTesting
     {
         public string Id { get; set; }
         public string Provider { get; set; }
-        public Dictionary<string,string> Schedule { get; set; }
-        public Config(string id, string provider, Dictionary<string,string> sched)
+        public Dictionary<string,string[]> Schedule { get; set; }
+        public Config(string id, string provider, Dictionary<string,string[]> sched)
         {
             Id = id;
             Provider = provider;

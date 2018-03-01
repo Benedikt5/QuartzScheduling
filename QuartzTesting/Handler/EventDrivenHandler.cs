@@ -1,21 +1,30 @@
-﻿using System;
+﻿using QuartzTesting.DataSource;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace QuartzTesting.Handler
 {
-    public class EventDrivenHandler : IHandler
+    public class EventDrivenHandler : IHandler, IDisposable
     {
         ILogger _log;
         public EventDrivenHandler(ILogger log)
         {
             _log = log;
         }
-        public async Task Handle(string id)
+
+        public void Dispose()
         {
-            await _log.Log($"EventDriven handle handles source {id}");
+            Thread.Sleep(1000);
+            _log.Log("Dispose event").GetAwaiter().GetResult();
+        }
+
+        public async Task Handle(string id, IDataSource dataSource)
+        {
+            await _log.Log($"Event {dataSource.Name}, id = {id}");
         }
     }
 }

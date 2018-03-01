@@ -20,7 +20,7 @@ namespace QuartzTesting
         }
         public async Task Log(string msg)
         {
-            await Console.Out.WriteAsync($"{_name}: {msg}");
+            await Console.Out.WriteLineAsync($"{DateTime.Now.TimeOfDay}|{_name}: {msg}");
         }
     }
 }

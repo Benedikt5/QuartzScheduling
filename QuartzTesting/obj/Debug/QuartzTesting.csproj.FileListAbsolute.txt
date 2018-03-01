@@ -1,2 +1,0 @@
-d:\userdata\documents\visual studio 2017\Projects\QuartzTesting\QuartzTesting\obj\Debug\QuartzTesting.csprojResolveAssemblyReference.cache
-d:\userdata\documents\visual studio 2017\Projects\QuartzTesting\QuartzTesting\obj\Debug\QuartzTesting.csproj.CoreCompileInputs.cache

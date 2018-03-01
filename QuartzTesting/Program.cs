@@ -23,8 +23,8 @@ namespace QuartzTesting
 
             _sources = new List<Config>
             {
-                new Config("KZ_excel","excel", new Dictionary<string, string>{{"full", "0/20 * * * * ?" }, {"event", "0/21 * * * * ?" } }),
-                new Config("KZ_ ad", "ad", new Dictionary<string, string>{{"full", "0/15 * * * * ?" }, {"event", "0/16 * * * * ?" } })
+                new Config("KZ_excel","excel", new Dictionary<string, string[]>{{"full", new string[] { "0/5 * * * * ?", "0/7 * * * * ?" } } })//, {"event", new string[] { "0/15 * * * * ?", "0/25 * * * * ?" } } }),
+                //new Config("KZ_ ad", "ad", new Dictionary<string, string[]>{{"full", ["0/3 * * * * ?", "0/5 * * * * ?"] }, {"event", ["0/4 * * * * ?", "0/5 * * * * ?"] } })
             };
 
             RunAsync().GetAwaiter().GetResult();
@@ -36,40 +36,58 @@ namespace QuartzTesting
 
         static async Task RunAsync()
         {
-
             _scheduler = await StdSchedulerFactory.GetDefaultScheduler();
-            
 
             var builder = new ContainerBuilder();
             builder.RegisterType<ConsoleLogger>().As<ILogger>();
             builder.RegisterType<FullHandler>().Named<IHandler>("full");
             builder.RegisterType<EventDrivenHandler>().Named<IHandler>("event");
             builder.RegisterType<ExcelDataSource>().Named<IDataSource>("excel");
+            builder.RegisterType<AdDataSource>().Named<IDataSource>("ad");
+            var container = builder.Build();
+
+            var jobCounter = 1;
             foreach (var source in _sources)
             {
-                foreach(var strategy in source.Schedule)
+                foreach (var strategy in source.Schedule)
                 {
                     var worker = JobBuilder.Create<SyncJob>()
-                        .WithIdentity(source.Id, "worker")
+                        .WithIdentity($"job{jobCounter}({source.Id})", "worker")
                         .StoreDurably()
-                        .UsingJobData(new JobDataMap())
-                        .Build();
-                    var trigger = TriggerBuilder.Create()
-                        .WithIdentity("trig1", "worker")
-                        .WithCronSchedule(strategy.Value)
                         .Build();
 
-                    await _scheduler.ScheduleJob(worker, trigger);
+                    worker.JobDataMap.Put("id", source.Id);
+                    worker.JobDataMap.Put("strategy", strategy.Key);
+                    worker.JobDataMap.Put("connector", source.Provider);
+
+
+                    
+                    var triggerSet = new List<ITrigger>();
+                    foreach (var sched in strategy.Value)
+                    {
+                        var tb = TriggerBuilder.Create()
+                            .WithIdentity($"trigger[{source.Id}][{jobCounter}]", "worker")
+                            .WithCronSchedule(sched)
+                            .Build();
+                        triggerSet.Add(tb);
+                        jobCounter++;
+                    }
+                    
+                    
+
+                    await _scheduler.ScheduleJob(worker, triggerSet,true);
+                    jobCounter++;
                 }
             }
 
-            builder.RegisterType<AdDataSource>().Named<IDataSource>("ad");
-            var container = builder.Build();
+
 
             var jobFactory = new JobFactory(container);
             _scheduler.JobFactory = jobFactory;
 
-            
+            await _scheduler.Start();
+            Console.ReadKey();
+            await _scheduler.Shutdown();
         }
     }
 }

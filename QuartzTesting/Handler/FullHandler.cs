@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace QuartzTesting.Handler
 {
-    public class FullHandler : IHandler
+    public class FullHandler : IHandler, IDisposable
     {
         private ILogger _log;
 
@@ -15,9 +15,15 @@ namespace QuartzTesting.Handler
         {
             _log = log;
         }
+
+        public void Dispose()
+        {
+            _log.Log("Dispose full").GetAwaiter().GetResult();
+        }
+
         public async Task Handle(string id, IDataSource dataSource)
         {
-            await _log.Log($"Full handle handles dataSource source {dataSource.Name}, id = {id}");
+            await _log.Log($"Full {dataSource.Name}, id = {id}");
         }
     }
 }
