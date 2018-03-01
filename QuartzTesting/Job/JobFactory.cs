@@ -31,17 +31,19 @@ namespace QuartzTesting.Job
 
             using (var scope = _container.BeginLifetimeScope(x => x.Register(l => new ConsoleLogger(bundle.JobDetail.Key.Name)).As<ILogger>()))
             {
-                try
-                {
-                    var ds = scope.ResolveNamed<IDataSource>(provider);
-                    var handler = scope.ResolveNamed<IHandler>(strategy);
-                    var job = new SyncJob(handler, ds);
-                    return job;
-                }
-                catch (Exception e)
-                {
-                    throw new Exception($"Problem with resolving job {bundle.JobDetail.Key}", e);
-                }
+                var providerIsRegistered = scope.IsRegisteredWithName<IDataSource>(provider);
+                var handlerIsRegistered = scope.IsRegisteredWithName<IHandler>(strategy);
+                if (!providerIsRegistered)
+                    _log.Log($"Service with name {provider} is not registered");
+
+                if (!handlerIsRegistered)
+                    _log.Log($"Strategy with name {strategy} is not registered");
+
+
+                var ds = scope.ResolveNamed<IDataSource>(provider);
+                var handler = scope.ResolveNamed<IHandler>(strategy);
+                var job = new SyncJob(handler, ds);
+                return job;
             }
         }
     }

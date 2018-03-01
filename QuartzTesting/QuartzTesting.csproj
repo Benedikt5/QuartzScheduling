@@ -58,10 +58,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="autofac">
       <Version>4.6.2</Version>
+    </PackageReference>
+    <PackageReference Include="Common.Logging.NLog41">
+      <Version>3.4.1</Version>
+    </PackageReference>
+    <PackageReference Include="NLog.Config">
+      <Version>4.4.13</Version>
     </PackageReference>
     <PackageReference Include="quartz">
       <Version>3.0.3</Version>

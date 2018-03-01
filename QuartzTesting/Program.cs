@@ -84,10 +84,20 @@ namespace QuartzTesting
 
             var jobFactory = new JobFactory(container);
             _scheduler.JobFactory = jobFactory;
-
-            await _scheduler.Start();
-            Console.ReadKey();
-            await _scheduler.Shutdown();
+            try
+            {
+                await _scheduler.Start();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                Console.ReadKey();
+                await _scheduler.Shutdown();
+            }
+            
         }
     }
 }
