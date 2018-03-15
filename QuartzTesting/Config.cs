@@ -8,6 +8,9 @@ namespace QuartzTesting
 {
     public class Config
     {
+///<summary>
+/// sample
+///</summary>
         public string Id { get; set; }
         public string Provider { get; set; }
         public Dictionary<string,string[]> Schedule { get; set; }
