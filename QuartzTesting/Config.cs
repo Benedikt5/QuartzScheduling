@@ -9,7 +9,7 @@ namespace QuartzTesting
     public class Config
     {
 ///<summary>
-/// sample
+/// samplesss
 ///</summary>
         public string Id { get; set; }
         public string Provider { get; set; }
